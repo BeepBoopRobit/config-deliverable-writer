@@ -1,9 +1,10 @@
 
 ### Step 1: Copy Configuration File
-Copy the `custom-files-sync.yaml` configuration file to the appropriate TAP-GitOps directory for your cluster.
+Copy the `custom-files-sync.yaml` and `custom-files-sync--sops-decrypt-first.yaml` configuration file to the appropriate TAP-GitOps directory for your cluster.
 
 ```bash
 cp custom-files-sync.yaml tap-gitops/<cluster_name>/tanzu-sync/app/config/.tanzu-managed/
+cp custom-files-sync--sops-decrypt-first.yaml tap-gitops/<cluster_name>/tanzu-sync/app/config/.tanzu-managed/
 ```
 
 ### Step 2: Create Custom Files Directory
