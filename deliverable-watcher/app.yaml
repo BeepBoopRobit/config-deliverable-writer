@@ -1,0 +1,38 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: kappctrl.k14s.io/v1alpha1
+kind: App
+metadata:
+  name: deliverable-watcher-development
+  namespace: #@ data.values.name
+spec:
+  serviceAccountName: default
+  fetch:
+  - git:
+      url: ssh://git@gitlab.com/boxedlunch-us/configrepo
+      ref: origin/main
+      secretRef:
+        name: git-secret-ssh-pem-kapp
+      subPath: #@ "config/" + data.values.name
+  - inline:
+      paths:
+        manifest.yml: |
+          ---
+          apiVersion: kapp.k14s.io/v1alpha1
+          kind: Config
+          rebaseRules:
+            - path: [metadata, annotations, serving.knative.dev/creator]
+              type: copy
+              sources: [new, existing]
+              resourceMatchers: &matchers
+                - apiVersionKindMatcher: {apiVersion: serving.knative.dev/v1, kind: Service}
+            - path: [metadata, annotations, serving.knative.dev/lastModifier]
+              type: copy
+              sources: [new, existing]
+              resourceMatchers: *matchers
+  syncPeriod: 1m
+  deploy:
+  - kapp: 
+      rawOptions: ["--apply-concurrency=10"]
+  template:
+  - ytt: {}
